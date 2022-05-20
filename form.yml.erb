@@ -1,0 +1,132 @@
+<%-
+  cmd = "/usr/bin/sinfo -ho %R"
+  begin
+    output, status = Open3.capture2e(cmd)
+    if status.success?
+      queues = output.split("\n").map(&:strip).reject(&:blank?).sort
+    else
+      raise output
+    end
+  rescue => e
+    queues = []
+    error = e.message.strip
+  end 
+-%>
+
+
+<%-
+  cmd1 = "/bin/whoami"
+  begin
+    username, status = Open3.capture2e(cmd1)
+    cmd2 = "/usr/bin/sacctmgr show assoc format=account -n where user=#{username}"
+    output, status = Open3.capture2e(cmd2)
+    if status.success?
+      accounts = output.split("\n").map(&:strip).reject(&:blank?).sort
+    else
+      raise output
+    end
+  rescue => e
+    accounts = []
+    error = e.message.strip
+  end
+-%>
+
+---
+cluster:
+  - "ynanyam"
+form:
+  - custom_account
+  - bc_num_hours
+  - bc_num_slots
+  - ntasks
+  - mem_req
+  - custom_queue
+  - bc_vnc_resolution
+  - screen_size
+  - dpi
+  - job_name
+  - bc_email_on_started
+attributes:
+  
+  custom_queue:
+    label: Queue
+    help: Select queue from the drop-down
+    <%- if error -%>
+      <span class="text-danger">Error when parsing queues:</span>
+      ```
+      <%= error.gsub("\n", "\n      ") %>
+      ```
+    <%- end -%>
+  <%- if queues.blank? -%>
+    widget: text_field
+  <%- else -%>
+    widget: select
+    options:
+    <%- queues.each do |q| -%>
+      - [ "<%= q %>", "<%= q %>" ]
+    <%- end -%>
+  <%- end -%> 
+ 
+  custom_account:
+    label: Account
+    help: Account under which to run the job
+    <%- if error -%>
+      <span class="text-danger">Error when parsing accounts:</span>
+      ```
+      <%= error.gsub("\n", "\n      ") %>
+      ```
+    <%- end -%>
+  <%- if accounts.blank? -%>
+    widget: text_field
+  <%- else -%>
+    widget: select
+    options:
+    <%- accounts.each do |a| -%>
+      - [ "<%= a %>", "<%= a %>" ]
+    <%- end -%>
+  <%- end -%>
+
+  mem_req:
+    label: "Memory required"
+    help: "If no unit specified, Megabytes.  Can use 'k', 'M', 'G' suffixes.  NO DECIMALS.  Example: 3072M"
+    widget: text_field
+    value: "2048M"
+
+  job_name:
+    label: "Job name"
+    help: "Name of job shown in queue"
+    value: "gimp"
+    widget: text_field
+
+  ntasks:
+    widget: "number_field"
+    label: "Number of cores"
+    value: 2
+    help: |
+      Number of cores on node
+    min: 0
+    max: 4
+    step: 1
+    id: 'ntasks'
+
+  bc_num_slots: "1"
+
+  bc_vnc_resolution:
+    required: true
+
+  screen_size:
+    widget: select
+    label: "Screen Resolution"
+    help: "Application display size"
+    options:
+      - [ "1024 x 768", "1024x768" ]
+      - [ "1080p" , "1920x1080" ]
+      - [ "1440p" , "2560x1440" ]
+      - [ "2160p" , "3840x2160" ]
+
+  dpi:
+    widget: number_field
+    label: "Display DPI to use"
+    value: 72
+    help: "Adjust display scaling dots-per-inch (DPI)"
+
