@@ -1,0 +1,15 @@
+---
+batch_connect:
+  template: vnc
+  geometry: "<%= screen_size %>"
+  dpi: "<%= dpi %>"
+  extra_args: "-depth 32"
+script:
+  accounting_id: "<%= custom_account %>"
+  native:
+    - "--nodes=<%= bc_num_slots.blank? ? 1 : bc_num_slots.to_i %>"
+    - "--mem=<%= mem_req %>" 
+    - "--job-name=<%= job_name %>"
+    - "--ntasks=<%= ntasks %>"
+    - "--account=<%= custom_account %>"
+    - "--partition=<%= custom_queue %>"

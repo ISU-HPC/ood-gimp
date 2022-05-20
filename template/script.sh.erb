@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Load the required environment
+setup_env () {
+  module purge
+
+  # The gimp module should set these environment variables:
+
+  #   GIMP_IMAGE="/usr/local/project/ondemand/singularity/gimp/3.8.sif"
+  GIMP_IMAGE="/reference/containers/gimp/<%= context.version %>/gimp-<%= context.version %>.sif"
+  #module use /usr/local/share/lmodfiles/project/ondemand
+  module load singularity
+}
+setup_env
+
+# Set working directory to PBS directory
+cd "${HOME}"
+
+#
+# Launch Xfce Window Manager and Panel
+#
+
+(
+  export SEND_256_COLORS_TO_REMOTE=1
+  export XDG_CONFIG_HOME="<%= session.staged_root.join("config") %>"
+  export XDG_DATA_HOME="<%= session.staged_root.join("share") %>"
+  export XDG_CACHE_HOME="$(mktemp -d)"
+  module restore
+  set -x
+  xfwm4 --compositor=off --daemon --sm-client-disable
+  xsetroot -solid "#D3D3D3"
+  xfsettingsd --sm-client-disable
+  xfce4-panel --sm-client-disable
+) &
+
+#
+# Start GIMP
+#
+
+singularity exec \
+        ${GIMP_IMAGE} \
+        gimp

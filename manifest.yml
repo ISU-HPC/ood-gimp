@@ -1,0 +1,10 @@
+---
+name: GIMP
+category: Interactive Apps
+subcategory: GUIs
+role: batch_connect
+description: |
+  This app will launch a [GIMP] GUI. You will be able to interact with the GIMP GUI
+  through a VNC session.
+
+  [GIMP]: https://gimp.org
