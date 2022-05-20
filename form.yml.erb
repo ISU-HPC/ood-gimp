@@ -47,6 +47,18 @@ form:
   - job_name
   - bc_email_on_started
 attributes:
+  version:
+    widget: "select"
+    label: "Codeserver Version"
+    options:
+      - ["2.10.24"]
+
+  working_dir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
   
   custom_queue:
     label: Queue
